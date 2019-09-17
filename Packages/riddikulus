@@ -1,0 +1,366 @@
+#!/bin/bash
+
+if [ $# == 0 ];
+then
+	echo -e "\n \n Command ' riddikulus ' not found, but can be installed with:"
+
+	echo -e "\n \n sudo apt install riddikulus\n"
+	
+elif [ $1 == "-l" ];
+then
+	echo "1. Design and implement a lexical analyzer for given language using C and the lexical analyzer should ignore redundant spaces, tabs and new lines. : SimpleLex1 "
+	echo "2. Implementation of Lexical Analyzer using Lex Tool : LexTool"
+	
+	echo  -e "3. Generate YACC specification for a few syntactic categories. : \n 
+				a. Program to recognize a valid arithmetic expression that uses operator +, – , * and /. :  \n b. Program to recognize a valid variable which starts with a letter followed by any number of letters or digits. : Yaac_a \n
+				b. Program to recognize a valid variable which starts with a letter followed by any number of letters or digits : Yaac_b \n"
+	echo "4. Generate YACC specification for a few syntactic categories
+				c. Implementation of Calculator using LEX and YACC : Yaac_c"
+	echo -e "5. Write program to find ε – closure of all states of any given NFA with ε transition. : e_closure"
+	echo "6. Write program to convert NFA to DFA. : nfa_dfa"
+	echo "7. Develop an operator precedence parser for a given language. : operator_parser"
+	echo "8. Write program to find Simulate First and Follow of a given grammar : first_follow"
+	echo "9. Construct a recursive descent parser for an expression. : rec_parser"
+	echo "10. Write a program to perform constant propagation. : const_propagation"
+	echo "11. Implement Intermediate code generation for simple expressions. : inter_code_generation"
+	echo "12. Implement the back end of the compiler which takes the three address code and produces the 8086 assembly language instructions that can be assembled and run using an 8086 assembler. The target assembly instructions can be simple move, add,sub etc : 8086"
+
+	elif [ $1 == "SimpleLex1" ];
+then
+	echo "
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+char keywords[][15] = {\"void\", \"main\", \"int\", \"char\", \"do\", \"while\", \"for\", \"else\", \"long\", \"continue\", \"return\", \"double\", \"if\", \"default\", \"switch\"};
+char operators[] = \"*+-/%=\";
+char seperators[] = \"(){},;.\";
+int num_k = 15;
+int isOperator(char ch)
+{
+	int i;
+	for (i = 0; i < strlen(operators); i++)
+	{
+		if (ch == operators[i])
+			return 1;
+	}
+	return 0;
+}
+int isSeperator(char ch)
+{
+	int i;
+	for (i = 0; i < strlen(seperators); i++)
+	{
+		if (ch == seperators[i])
+			return 1;
+	}
+	return 0;
+}
+
+int isKeyWord(char *ch)
+{
+	int i;
+	for (i = 0; i < num_k; i++)
+	{
+		if (strcmp(ch, keywords[i]) == 0)
+			return 1;
+	}
+	return 0;
+}
+
+void main()
+{
+	FILE *input, *token;
+	input = fopen(\"input.c\", \"r\");
+	token = fopen(\"token.txt\", \"w\");
+	char ch, tempd[10], temps[10];
+	int d, s;
+	ch = fgetc(input);
+
+	while (ch != EOF)
+	{
+		if (isdigit(ch))
+		{
+			d = 0;
+			tempd[d++] = ch;
+			ch = fgetc(input);
+			while (isdigit(ch))
+			{
+				tempd[d++] = ch;
+				ch = fgetc(input);
+			}
+			tempd[d] = '\0';
+			fprintf(token, \"%s\t<%s>\tNumber\n\", tempd, tempd);
+		}
+		if (isalnum(ch))
+		{
+			char t[20], j = 0;
+			t[j++] = ch;
+			ch = fgetc(input);
+			while (isalnum(ch))
+			{
+				t[j++] = ch;
+				ch = fgetc(input);
+			}
+			if (ch == ' ' || ch == '\n' || isSeperator(ch) || isOperator(ch))
+			{
+				t[j++] = '\0';
+			}
+
+			if (isKeyWord(t) == 1)
+			{
+				fprintf(token, \"%s\t<%s>\tKeyword\n\", t, t);
+			}
+			else
+			{
+				fprintf(token, \"%s\t<%s>\tIdentifier\n\", t, t);
+			}
+		}
+		if (isOperator(ch) == 1)
+		{
+			fprintf(token, \"%c\t<%c>\tOperator\n\", ch, ch);
+		}
+
+		if (isSeperator(ch) == 1)
+		{
+			fprintf(token, \"%c\t<%c>\tSeperator\n\", ch, ch);
+		}
+
+		ch = fgetc(input);
+	}
+	fclose(input);
+	fclose(token);
+	token = fopen(\"token.txt\", \"r\");
+	printf(\"\nLexemes\tTokens\t\n\");
+	char out1[30], out2[30], out3[30];
+	fscanf(token, \"%s%s%s\", out1, out2, out3);
+	while (!feof(token))
+	{
+		printf(\"%s\t%s\t%s\n\", out1, out2, out3);
+		fscanf(token, \"%s%s%s\", out1, out2, out3);
+	}
+}
+" > /home/jm/Desktop/SimpleLex1.c
+
+	echo "
+#include<stdio.h>
+void main()
+{
+	int a = 10;
+	int b = a + 20;
+	int c;
+	char str = "STRING";
+	if(a<=b)
+	{
+		c=a+b;
+	}
+	sum(a);
+}
+" > /home/jm/Desktop/input.c
+
+elif [ $1 == "LexTool" ];
+then
+	echo "
+digit [0-9]*
+letter [a-zA-Z]
+%%
+\"int\"|\"return\"|\"goto\"|\"char\"|\"if\"|\"else\"|\"for\"|\"while\"|\"do\"|\"void\"|\"printf\"|\"switch\"|\"float\"|\"double\" {printf(\"\n%s\tkeyword\",yytext);}
+{digit}*                                                    {printf(\"\n%s\tNumber\",yytext);}
+(\"_\")*{letter}(\"_\"|{letter}|{digit})*		                {printf(\"\n%s\tIdentifier\",yytext);}
+{letter}*\(({letter}|{digit})*\)                            {printf(\"\n%s\tFunction\",yytext);}
+#.*                                                         {printf(\"\n%s\tHeader File\",yytext);}
+\/\/.*                                                      {printf(\"\n%s\tComment\",yytext);}
+\\\".*\\\"                                                      {printf(\"\n%s\tString\",yytext);}
+\"+\"|\"-\"|\"*\"|\"/\"|\"%\"                                         {printf(\"\n%s\tArithmetic Operator\",yytext);}
+\"<\"|\">\"|\"<=\"|\">=\"|\"==\"|\"!=\"                                 {printf(\"\n%s\tRelational Operator\",yytext);}
+\"=\"                                                         {printf(\"\n%s\tAssignment Operator\",yytext);}
+\{                                                          {printf(\"\n%s\tOpening Brace\nBLOCK BEGINS\",yytext);}                                                       
+\}                                                          {printf(\"\nBLOCK ENDS\n%s\tClosing Brace\",yytext);}                                                 
+\;                                                          {printf(\"\n%s\tDelimiter\",yytext);}
+\(                                                          {printf(\"\n%s\tOpening Bracket\",yytext);}
+\)                                                          {printf(\"\n%s\tClosing Bracket\",yytext);}
+%%
+int main(){
+	FILE *file;
+	file = fopen(\"input.c\",\"r\");
+	if(!file)
+	{	
+		printf(\"File not found!!!\");
+		exit(0);
+	}		
+	yyin = file;
+	yylex();
+	printf(\"\nCompleted Scanning!\");
+	return 0;
+}
+" > /home/jm/Desktop/LexTool.l
+	echo "
+#include<stdio.h>
+void main()
+{
+	int a = 10;
+	int b = a + 20;
+	int c;
+	char str = \"STRING\";
+	if(a<=b)
+	{
+		c=a+b;
+	}
+	sum(a);
+}
+" > /home/jm/Desktop/input.c
+elif [ $1 == 'Yaac_a' ];
+then
+	echo "%{
+      #include \"y.tab.h\"
+
+%}
+
+%%
+
+[a-zA-Z_][a-zA-Z_0-9]* return id;
+[0-9]+(\.[0-9]*)?      return num;
+[+/*]                  return op;
+.                      return yytext[0];
+\n                     return 0;
+%%
+
+int yywrap(){
+return 1;
+}" > /home/jm/Desktop/3a.l
+	echo " %{
+
+    #include<stdio.h>
+    int valid=1;   
+%}
+
+%token num id op
+
+%%
+start : id '=' s ';'
+s :     id x| num x| '-' num x| '(' s ')' x;
+
+x :    op s| '-' s|;
+
+%%
+
+int yyerror(){
+    valid=0;
+    printf(\"\nInvalid!!!!!\n\");
+    return 0;
+}
+
+int main(){
+    printf(\"\nEnter expression:\n\");
+    yyparse();
+    if(valid){
+        printf(\"\nValid\n\");
+    }
+
+}
+" > /home/jm/Desktop/3a.y
+
+elif [ $1 == 'Yaac_b' ];
+then
+	echo "%{
+    #include \"y.tab.h\"
+%}
+%%
+[0-9]       {return digit;}
+[a-zA-Z]+   {return letter;}
+[ \t]       {;}
+\n          {return 0;}
+.           {return yytext[0];}
+%%
+
+int yywrap(){
+return 1;
+}
+" > /home/jm/Desktop/3b.l
+	echo "%{
+#include<stdio.h>
+#include<stdlib.h>
+%}
+%token digit letter
+%%
+stmt:A ;
+A: letter B |letter ;
+B: letter B | digit B | letter | digit ;
+%%
+void main(){
+printf(\"enter input \n\");
+yyparse();
+printf(\"valid\");
+exit(0);
+}
+void yyerror(){
+printf(\"invalid\");
+exit(0);
+}" > /home/jm/Desktop/3b.y
+
+elif [ $1 == 'Yaac_c' ];
+then
+	echo "%{
+#include<stdio.h>
+#include \"y.tab.h\"
+extern int yylval;
+%}
+%%
+[0-9]+ {
+          yylval=atoi(yytext);
+          return number;
+       }
+
+[\t] ;
+[\n] return 0;
+. return yytext[0];
+%%
+int yywrap(){
+return 1;
+}" > /home/jm/Desktop/4.l
+
+	echo " %{
+    #include<stdio.h>
+%}
+
+%token number
+%left '+' '-'
+%left '*' '/' '%'
+%left '(' ')'
+%%
+
+ArithmeticExpression: E{
+
+         printf(\"\nResult:%d\n\",$$);
+
+         return 0;
+
+        };
+
+E:E'+'E {$$=$1+$3;}
+
+ |E'-'E {$$=$1-$3;}
+
+ |E'*'E {$$=$1*$3;}
+
+ |E'/'E {$$=$1/$3;}
+
+ |E'%'E {$$=$1%$3;}
+
+ |'('E')' {$$=$2;}
+
+ | number {$$=$1;}
+
+;
+%%
+void main(){
+   
+   printf(\"\nEnter Expression:\n\");
+   yyparse();
+}
+
+void yyerror(){
+
+   printf(\"\nNot valid Arithmetic Expression!!!\n\n\");
+}" > /home/jm/Desktop/4.y
+
+fi
